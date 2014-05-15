@@ -12,5 +12,5 @@ chkconfig nginx on
 
 ulimit -n 10240
 
-cp -f /vagrant/nginx.conf /etc/nginx/
+cp -f /vagrant/nginx/nginx.conf /etc/nginx/
 service nginx restart
