@@ -14,7 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.forward_agent = true
   config.vm.provision "shell", inline: "/etc/init.d/iptables stop"
 
-  logstash_count = 1
+  logstash_count = 2
   logstash_collector_ips = (1..logstash_count).map {|i| "10.30.3.#{30+i}" }
   kafka_brokers = "10.30.3.10:9092,10.30.3.20:9092,10.30.3.30:9092"
 
@@ -23,6 +23,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ip = "10.30.3.#{30+i}"
       s.vm.hostname = "logstash#{i}"
       s.vm.network "private_network", ip: ip, netmask: "255.255.255.0", virtualbox__intnet: "servidors", drop_nat_interface_default_route: true
+      `mkdir -p ./log/logstash-collector-#{i}/`
+      s.vm.synced_folder "./log/logstash-collector-#{i}/", "/var/log/logstash/", id: "vagrant-logstash-log",
+        :owner => "logstash",
+        :group => "logstash"
       s.vm.provision "shell", path: "scripts/init_logstash.sh", args: "collector \"#{ip}\" \"#{kafka_brokers}\""
       s.vm.provision "shell", path: "scripts/init_redis.sh"
       s.vm.provision "shell", path: "scripts/init_logstash_kafka.sh"
@@ -39,6 +43,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define "nginx#{i}" do |s|
       s.vm.hostname = "nginx#{i}"
       s.vm.network "private_network", ip: "10.30.3.#{20+i}", netmask: "255.255.255.0", virtualbox__intnet: "servidors", drop_nat_interface_default_route: true
+      `mkdir -p ./log/nginx-#{i}/`
+      s.vm.synced_folder "./log/nginx-#{i}/", "/var/log/nginx/", id: "vagrant-nginx-log",
+        :owner => "nginx",
+        :group => "adm"
+      `mkdir -p ./log/logstash-nginx-#{i}/`
+      s.vm.synced_folder "./log/logstash-nginx-#{i}/", "/var/log/logstash/", id: "vagrant-logstash-log",
+        :owner => "logstash",
+        :group => "logstash"
       s.vm.provision "shell",
         path: "scripts/init_logstash.sh",
         args: "nginx '#{quote_array(logstash_collector_ips)}'"
