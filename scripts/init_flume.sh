@@ -14,4 +14,7 @@ chown -R flume:flume /usr/local/flume
 
 sed -e "s/\${KAFKA_BROKERS}/$1/g" /vagrant/flume/nginx-flume.conf > /etc/flume-ng/conf/flume.conf
 
-flume-ng agent -n NginxKafka -f /etc/flume-ng/conf/flume.conf --plugins-path /usr/local/flume
+cp /vagrant/flume/initd_flume-agent /etc/init.d/flume-ng-agent
+chkconfig --add flume-ng-agent
+chkconfig flume-ng-agent on
+service flume-ng-agent restart

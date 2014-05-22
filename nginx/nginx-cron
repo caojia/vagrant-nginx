@@ -1,0 +1,2 @@
+# Run every minute to rotate the log
+* * * * * root /vagrant/scripts/rotate-nginx-log.sh /var/log/nginx/access.log

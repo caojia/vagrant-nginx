@@ -10,7 +10,13 @@ fi
 yum install -y nginx
 chkconfig nginx on
 
+# don't do system logrotate for nginx
+rm -rf /etc/logrotate.d/nginx
+
 ulimit -n 10240
 
 cp -f /vagrant/nginx/nginx.conf /etc/nginx/
 service nginx restart
+
+cp -f /vagrant/nginx/nginx-cron /etc/cron.d/
+service crond restart
