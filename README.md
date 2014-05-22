@@ -14,4 +14,4 @@ nginx-logstash是使用logstash作为通道发送至Kafka的branch。
 
 依赖
 =============
-该项目中用到的Kafka均依赖于https://github.com/caojia/vagrant-kafka的配置。
+该项目中用到的Kafka均依赖于https://github.com/caojia/vagrant-kafka 的配置。
