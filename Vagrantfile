@@ -12,14 +12,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "centos64"
   config.ssh.forward_agent = true
-  config.vm.provision "shell", inline: "/etc/init.d/iptables stop"
+  config.vm.provision "shell", inline: "/etc/init.d/iptables stop", run: "always"
 
-  kafka_brokers = "10.30.3.10:9092,10.30.3.20:9092,10.30.3.30:9092"
+  kafka_brokers = "10.30.3.2:9092,10.30.3.3:9092,10.30.3.4:9092"
 
   (1..1).each do |i|
     config.vm.define "nginx#{i}" do |s|
       s.vm.hostname = "nginx#{i}"
-      s.vm.network "private_network", ip: "10.30.3.#{20+i}", netmask: "255.255.255.0", virtualbox__intnet: "servidors", drop_nat_interface_default_route: true
+      s.vm.network "private_network", ip: "10.30.3.#{20+i}", netmask: "255.255.255.0"
       `mkdir -p ./log/nginx-#{i}/`
       s.vm.synced_folder "./log/nginx-#{i}/", "/var/log/nginx/", id: "vagrant-nginx-log",
         :owner => "nginx",
@@ -29,8 +29,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         :owner => "flume",
         :group => "flume"
 
-      s.vm.provision "shell", path: "scripts/init_nginx.sh"
-      s.vm.provision "shell", path: "scripts/init_flume.sh", args: kafka_brokers
+      s.vm.provision "shell", path: "scripts/init_nginx.sh", run: "always"
+      s.vm.provision "shell", path: "scripts/init_flume.sh", args: kafka_brokers, run: "always"
     end
   end
 
